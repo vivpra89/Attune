@@ -1,5 +1,9 @@
 # Attune
 
+**Description:** Real-time attention layer for children's learning — on-device macOS app with Apple Vision & Core ML.  
+**Website:** [attune.ai](https://attune.ai)  
+**Topics:** `macos` · `tauri` · `coreml` · `education` · `attention` · `react` · `rust` · `swift` · `machine-learning` · `computer-vision`
+
 Real-time attention layer for children's learning. Attune uses on-device camera + Apple Vision to detect engagement during homework and learning sessions, then gently nudges kids back when attention drifts — without screen recording or uploading video.
 
 **Repository:** [github.com/vivpra89/Attune](https://github.com/vivpra89/Attune)
