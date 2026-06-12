@@ -132,4 +132,4 @@ Report security issues per [`attune-app/SECURITY.md`](attune-app/SECURITY.md).
 
 ## Contact
 
-hello@attune.ai
+vivek8943@gmail.com
