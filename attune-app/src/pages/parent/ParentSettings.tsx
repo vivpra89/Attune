@@ -347,11 +347,12 @@ export function ParentSettings() {
                 checked={audioCues}
                 onChange={(e) => setAudioCues(e.target.checked)}
               />
-              Audio dim cue
+              Attention sound cues
             </label>
             <p className="text-xs text-muted-foreground mt-1 ml-6">
-              Gentle chime when the screen dims for attention (not on soft nudge or refocus).
-              Requires an active session and Mac volume on.
+              Soft chime when focus starts to drift; repeating cues grow more frequent if
+              attention stays away. Follows your Gentle / Standard / Strong profile. No sound on
+              refocus. Requires an active session and Mac volume on.
             </p>
           </div>
         </div>

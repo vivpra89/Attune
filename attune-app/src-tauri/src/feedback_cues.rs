@@ -1,8 +1,33 @@
 use crate::attune_db::with_db;
 use crate::feedback::{FeedbackState, FeedbackUpdate};
+use serde::Serialize;
+use std::sync::Mutex;
 use tauri::{AppHandle, Emitter};
 
-const CUE_DEBOUNCE_SECS: f64 = 8.0;
+const MIN_CUE_GAP_SECS: f64 = 3.0;
+
+#[derive(Debug, Clone, Serialize)]
+pub struct FeedbackCueEvent {
+    pub cue: String,
+    pub volume: f32,
+}
+
+struct CueScheduler {
+    last_cue_at: f64,
+    last_state: Option<FeedbackState>,
+}
+
+static SCHEDULER: Mutex<CueScheduler> = Mutex::new(CueScheduler {
+    last_cue_at: -MIN_CUE_GAP_SECS,
+    last_state: None,
+});
+
+pub fn reset_cue_scheduler() {
+    if let Ok(mut guard) = SCHEDULER.lock() {
+        guard.last_cue_at = -MIN_CUE_GAP_SECS;
+        guard.last_state = None;
+    }
+}
 
 pub fn load_audio_cues_enabled(app: &AppHandle) -> bool {
     with_db(app, |conn| {
@@ -19,61 +44,162 @@ pub fn load_audio_cues_enabled(app: &AppHandle) -> bool {
     .unwrap_or(true)
 }
 
-pub fn handle_feedback_transition(
-    app: &AppHandle,
-    prev_state: Option<FeedbackState>,
-    update: &FeedbackUpdate,
-    now: f64,
-) {
+/// Duration-based escalating audio cues during active sessions.
+pub fn handle_feedback_cues(app: &AppHandle, update: &FeedbackUpdate, now: f64, profile_name: &str) {
     if !load_audio_cues_enabled(app) {
         return;
     }
 
-    // Visual-only when back to focused ("Here") — no chime on recovery.
-    if update.state == FeedbackState::Focused || update.show_reengage {
+    if update.state == FeedbackState::Focused
+        || update.show_reengage
+        || update.state == FeedbackState::ConfusionHelp
+        || update.state == FeedbackState::HyperfocusRedirect
+    {
+        if let Ok(mut guard) = SCHEDULER.lock() {
+            guard.last_state = Some(update.state);
+        }
         return;
     }
 
-    let Some(prev) = prev_state else {
+    let Some((cue, volume)) = cue_for_state(update.state) else {
         return;
     };
 
-    if prev == update.state {
+    let mut guard = match SCHEDULER.lock() {
+        Ok(g) => g,
+        Err(_) => return,
+    };
+
+    let state_changed = guard.last_state != Some(update.state);
+    guard.last_state = Some(update.state);
+
+    let interval = profile_scale(
+        repeat_interval_secs(update.state, update.state_duration_secs, profile_name),
+        profile_name,
+    );
+
+    let should_play = if state_changed {
+        true
+    } else if now - guard.last_cue_at >= interval {
+        true
+    } else {
+        false
+    };
+
+    if !should_play {
         return;
     }
 
-    // Chime only when entering dimmed — not soft nudge, confusion help, or break.
-    if update.state != FeedbackState::Dimmed || prev == FeedbackState::Dimmed {
+    if !state_changed && now - guard.last_cue_at < MIN_CUE_GAP_SECS {
         return;
     }
 
-    emit_cue(app, "dim", now);
+    guard.last_cue_at = now;
+    drop(guard);
+
+    let _ = app.emit(
+        "play-feedback-cue",
+        FeedbackCueEvent {
+            cue: cue.to_string(),
+            volume,
+        },
+    );
 }
 
-fn emit_cue(app: &AppHandle, cue: &str, now: f64) {
-    use std::sync::Mutex;
-    use std::time::{SystemTime, UNIX_EPOCH};
+fn cue_for_state(state: FeedbackState) -> Option<(&'static str, f32)> {
+    match state {
+        FeedbackState::SoftNudge => Some(("nudge", 0.35)),
+        FeedbackState::Dimmed => Some(("dim", 0.45)),
+        FeedbackState::BreakSuggest => Some(("dim", 0.30)),
+        _ => None,
+    }
+}
 
-    static LAST_CUE: Mutex<Option<(String, f64)>> = Mutex::new(None);
+fn profile_scale(interval: f64, profile_name: &str) -> f64 {
+    match profile_name {
+        "gentle" => interval * 1.25,
+        "strong" => interval * 0.85,
+        _ => interval,
+    }
+}
 
-    let ts = if now > 0.0 {
-        now
-    } else {
-        SystemTime::now()
-            .duration_since(UNIX_EPOCH)
-            .map(|d| d.as_secs_f64())
-            .unwrap_or(0.0)
-    };
-
-    {
-        let mut guard = LAST_CUE.lock().unwrap();
-        if let Some((ref last_name, last_ts)) = *guard {
-            if last_name == cue && ts - last_ts < CUE_DEBOUNCE_SECS {
-                return;
+/// Base repeat interval before profile scaling (seconds).
+fn repeat_interval_secs(
+    state: FeedbackState,
+    state_duration_secs: f32,
+    profile_name: &str,
+) -> f64 {
+    match state {
+        FeedbackState::SoftNudge => match profile_name {
+            "strong" => 8.0,
+            "standard" => 10.0,
+            _ => 12.0,
+        },
+        FeedbackState::Dimmed => {
+            if state_duration_secs >= 30.0 {
+                3.0
+            } else if state_duration_secs >= 15.0 {
+                5.0
+            } else {
+                8.0
             }
         }
-        *guard = Some((cue.to_string(), ts));
+        FeedbackState::BreakSuggest => 14.0,
+        _ => f64::MAX,
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn dim_interval_escalates_with_duration() {
+        assert_eq!(
+            repeat_interval_secs(FeedbackState::Dimmed, 5.0, "standard"),
+            8.0
+        );
+        assert_eq!(
+            repeat_interval_secs(FeedbackState::Dimmed, 20.0, "standard"),
+            5.0
+        );
+        assert_eq!(
+            repeat_interval_secs(FeedbackState::Dimmed, 35.0, "standard"),
+            3.0
+        );
     }
 
-    let _ = app.emit("play-feedback-cue", cue);
+    #[test]
+    fn profile_scale_adjusts_interval() {
+        assert_eq!(profile_scale(10.0, "gentle"), 12.5);
+        assert_eq!(profile_scale(10.0, "strong"), 8.5);
+        assert_eq!(profile_scale(10.0, "standard"), 10.0);
+    }
+
+    #[test]
+    fn cue_mapping_for_nudge_and_dim() {
+        assert_eq!(
+            cue_for_state(FeedbackState::SoftNudge),
+            Some(("nudge", 0.35))
+        );
+        assert_eq!(cue_for_state(FeedbackState::Dimmed), Some(("dim", 0.45)));
+        assert_eq!(
+            cue_for_state(FeedbackState::BreakSuggest),
+            Some(("dim", 0.30))
+        );
+        assert_eq!(cue_for_state(FeedbackState::Focused), None);
+        assert_eq!(cue_for_state(FeedbackState::ConfusionHelp), None);
+    }
+
+    #[test]
+    fn soft_nudge_base_intervals() {
+        assert_eq!(
+            repeat_interval_secs(FeedbackState::SoftNudge, 0.0, "gentle"),
+            12.0
+        );
+        assert_eq!(
+            repeat_interval_secs(FeedbackState::SoftNudge, 0.0, "strong"),
+            8.0
+        );
+    }
 }

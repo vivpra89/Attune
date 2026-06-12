@@ -97,8 +97,8 @@ pub struct AppFocusPoint {
     pub duration_sec: i64,
 }
 
-fn load_feedback_profile(app: &AppHandle) -> FeedbackProfile {
-    let name = with_db(app, |conn| {
+fn load_feedback_profile_name(app: &AppHandle) -> String {
+    with_db(app, |conn| {
         let mut stmt = conn
             .prepare("SELECT value FROM attune_settings WHERE key = 'feedback_profile'")
             .map_err(|e| e.to_string())?;
@@ -109,8 +109,11 @@ fn load_feedback_profile(app: &AppHandle) -> FeedbackProfile {
         }
         Ok("gentle".to_string())
     })
-    .unwrap_or_else(|_| "gentle".to_string());
-    FeedbackProfile::from_name(&name)
+    .unwrap_or_else(|_| "gentle".to_string())
+}
+
+fn load_feedback_profile(app: &AppHandle) -> FeedbackProfile {
+    FeedbackProfile::from_name(&load_feedback_profile_name(app))
 }
 
 fn load_sensitivity(app: &AppHandle) -> f32 {
@@ -264,7 +267,9 @@ pub async fn start_session(app: AppHandle) -> Result<String, String> {
 
     let sensitivity = load_sensitivity(&app);
     let profile = load_feedback_profile(&app);
+    let feedback_profile_name = load_feedback_profile_name(&app);
     let focus_apps = load_focus_apps(&app);
+    feedback_cues::reset_cue_scheduler();
     *state.sensitivity.lock().unwrap() = sensitivity;
     *state.feedback_engine.lock().unwrap() = Some(FeedbackEngine::new(sensitivity, profile));
     *state.distraction_engine.lock().unwrap() =
@@ -289,6 +294,7 @@ pub async fn start_session(app: AppHandle) -> Result<String, String> {
 
     let app_handle = app.clone();
     let sid = session_id.clone();
+    let profile_name = feedback_profile_name;
     let task = tokio::spawn(async move {
         let mut last_app: Option<(String, String, i64)> = None;
         let mut last_app_event_id: Option<i64> = None;
@@ -323,12 +329,6 @@ pub async fn start_session(app: AppHandle) -> Result<String, String> {
                     .unwrap_or_default()
             };
 
-            let prev_feedback_state = {
-                let state = app_handle.state::<SessionState>();
-                let guard = state.feedback_engine.lock().unwrap();
-                guard.as_ref().map(|engine| engine.state())
-            };
-
             let update = {
                 let state = app_handle.state::<SessionState>();
                 let mut engine_guard = state.feedback_engine.lock().unwrap();
@@ -340,11 +340,11 @@ pub async fn start_session(app: AppHandle) -> Result<String, String> {
             if let Some(ref update) = update {
                 let _ = set_dim_opacity(app_handle.clone(), update.opacity).await;
                 let _ = app_handle.emit("feedback-update", update);
-                feedback_cues::handle_feedback_transition(
+                feedback_cues::handle_feedback_cues(
                     &app_handle,
-                    prev_feedback_state,
                     update,
                     now,
+                    &profile_name,
                 );
             }
 
@@ -534,6 +534,7 @@ pub async fn end_session(app: AppHandle) -> Result<Option<String>, String> {
 
     *state.feedback_engine.lock().unwrap() = None;
     *state.distraction_engine.lock().unwrap() = None;
+    feedback_cues::reset_cue_scheduler();
 
     stop_vision()?;
     stop_attention_overlay(app.clone()).await?;

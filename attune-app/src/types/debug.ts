@@ -39,6 +39,7 @@ export interface FeedbackUpdate {
   show_confusion_help: boolean;
   primary_distraction: string | null;
   face_missing_secs: number;
+  state_duration_secs: number;
 }
 
 export interface DistractionEvent {

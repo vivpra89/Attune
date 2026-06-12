@@ -2,19 +2,36 @@ import { useEffect, useRef, useState } from "react";
 import { listen } from "@tauri-apps/api/event";
 import type { FeedbackUpdate } from "@/contexts/attune.context";
 
-const CUE_DEBOUNCE_MS = 8000;
+const CUE_DEBOUNCE_MS = 2000;
 
-function playCue(name: string, lastPlayed: React.MutableRefObject<Map<string, number>>) {
-  // Audio only when the screen dims — never on nudge, refocus, or break.
-  if (name !== "dim") return;
+type FeedbackCuePayload =
+  | string
+  | {
+      cue: string;
+      volume: number;
+    };
+
+function playCue(
+  payload: FeedbackCuePayload,
+  lastPlayed: React.MutableRefObject<number>
+) {
+  const cue =
+    typeof payload === "string" ? payload : payload.cue;
+  const volume =
+    typeof payload === "string"
+      ? cue === "nudge"
+        ? 0.35
+        : 0.45
+      : payload.volume;
+
+  if (cue !== "nudge" && cue !== "dim") return;
 
   const now = Date.now();
-  const prev = lastPlayed.current.get(name) ?? 0;
-  if (now - prev < CUE_DEBOUNCE_MS) return;
-  lastPlayed.current.set(name, now);
+  if (now - lastPlayed.current < CUE_DEBOUNCE_MS) return;
+  lastPlayed.current = now;
 
-  const audio = new Audio(`/sounds/${name}.wav`);
-  audio.volume = 0.45;
+  const audio = new Audio(`/sounds/${cue}.wav`);
+  audio.volume = volume;
   audio.play().catch(() => {});
 }
 
@@ -26,7 +43,7 @@ export function AttentionDimOverlay() {
   const [showConfusion, setShowConfusion] = useState(false);
   const [feedbackState, setFeedbackState] = useState<string>("focused");
   const [primaryDistraction, setPrimaryDistraction] = useState<string | null>(null);
-  const lastCueRef = useRef<Map<string, number>>(new Map());
+  const lastCueRef = useRef(0);
   const prevOpacityRef = useRef(0);
   const prevFeedbackStateRef = useRef<string>("focused");
 
@@ -47,7 +64,7 @@ export function AttentionDimOverlay() {
       }
       prevFeedbackStateRef.current = p.state;
     });
-    const unlistenCue = listen<string>("play-feedback-cue", (event) => {
+    const unlistenCue = listen<FeedbackCuePayload>("play-feedback-cue", (event) => {
       if (prevFeedbackStateRef.current === "focused") return;
       playCue(event.payload, lastCueRef);
     });

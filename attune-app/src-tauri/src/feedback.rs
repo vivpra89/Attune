@@ -39,6 +39,7 @@ pub struct FeedbackUpdate {
     pub show_confusion_help: bool,
     pub primary_distraction: Option<String>,
     pub face_missing_secs: f32,
+    pub state_duration_secs: f32,
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -119,6 +120,7 @@ pub struct FeedbackEngine {
     had_face_absent_past_grace: bool,
     last_tick_ts: f64,
     break_after_secs: f32,
+    state_entered_at: f64,
 }
 
 impl FeedbackEngine {
@@ -144,6 +146,7 @@ impl FeedbackEngine {
             had_face_absent_past_grace: false,
             last_tick_ts: 0.0,
             break_after_secs: profile.break_after_secs,
+            state_entered_at: 0.0,
         }
     }
 
@@ -230,7 +233,16 @@ impl FeedbackEngine {
             && now - self.last_reengage_at >= REENGAGE_COOLDOWN_SECS;
 
         self.prev_state = self.state;
+        if next_state != self.state {
+            self.state_entered_at = now;
+        }
         self.state = next_state;
+
+        let state_duration_secs = if self.state_entered_at > 0.0 {
+            (now - self.state_entered_at).max(0.0) as f32
+        } else {
+            0.0
+        };
 
         if self.state == FeedbackState::Focused {
             if self.focused_since.is_none() || recovered_from_feedback {
@@ -274,6 +286,7 @@ impl FeedbackEngine {
             } else {
                 self.face_missing_duration(now)
             },
+            state_duration_secs,
         }
     }
 
