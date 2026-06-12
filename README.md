@@ -1,22 +1,59 @@
 # Attune
 
-**Description:** Real-time attention layer for children's learning — on-device macOS app with Apple Vision & Core ML.  
+**Description:** Real-time attention feedback for children's learning — ADHD-research-inspired, on-device macOS app with Apple Vision & Core ML.  
 **Website:** [attune.ai](https://attune.ai)  
 **Topics:** `macos` · `tauri` · `coreml` · `education` · `attention` · `react` · `rust` · `swift` · `machine-learning` · `computer-vision`
 
-Real-time attention layer for children's learning. Attune uses on-device camera + Apple Vision to detect engagement during homework and learning sessions, then gently nudges kids back when attention drifts — without screen recording or uploading video.
+Attune is a **real-time attention feedback layer** for children's learning. During homework or screen-based lessons, it watches engagement through the webcam (on-device only), then responds when focus drifts — without screen recording or uploading video.
 
 **Repository:** [github.com/vivpra89/Attune](https://github.com/vivpra89/Attune)
+
+---
+
+## Attention feedback (during learning)
+
+While a session is running, Attune estimates whether your child is engaged using **Apple Vision** face landmarks and **Core ML** models (gaze, expression, presence). That signal drives a **closed-loop feedback loop**:
+
+| Stage | What the child experiences |
+|-------|----------------------------|
+| **Focused** | Normal screen — no interruption |
+| **Soft nudge** | Gentle visual cue when attention starts to slip |
+| **Dim** | Full-screen, click-through overlay fades in; clears when they look back |
+| **Break suggest** | Prompt to pause after sustained disengagement |
+| **Confusion help** | Supportive message when the model detects puzzlement |
+
+Parents control sensitivity (including a **gentler profile** tuned for kids who need longer grace periods). Every session is logged locally so you can review timelines and optional weekly summaries in the **parent dashboard**.
+
+This is **attention support during real work** — not a game replacement for learning apps your child already uses.
+
+---
+
+## Inspiration & ADHD
+
+Attune is **inspired by published cognitive-training research**, especially:
+
+- **[NeuroRacer](https://neuroscape.ucsf.edu/technology/interventions-and-diagnostics/)** (UCSF Neuroscape, *Nature* 2013) — multitasking and adaptive difficulty for attentional control  
+- **[EndeavorRx](https://www.endeavorrx.com/)** (Akili) — closed-loop, prescription digital therapeutic for children 8–17 with ADHD  
+
+We borrow ideas from that lineage — **real-time engagement sensing**, **adaptive challenge**, and **mission-style train exercises** — but Attune is **not** EndeavorRx, does **not** use Akili's SSME, and is **not** FDA-authorized.
+
+**Important:** Attune is a **training and homework aid**. It does **not** diagnose ADHD, treat ADHD, replace medication or therapy, or substitute for a clinician. Screening and train modes include plain-language disclaimers in the app.
+
+For families exploring attention challenges, Attune fits the **Screen → Train → Attune** flow: practice attention skills in **Train mode**, then use **live feedback** while doing real schoolwork.
+
+Details: [Train mode](docs/TRAIN_MODE.md) · [Naturalistic attention protocol](docs/NATURALISTIC_ATTENTION_PROTOCOL.md)
 
 ---
 
 ## What it does
 
 - **Menu bar macOS app** — start/stop sessions from the tray; parent dashboard for reports and settings
-- **On-device attention detection** — face landmarks + Core ML models; video never leaves the device
-- **Fullscreen dim overlay** — click-through overlay when focus drops (not screen capture)
+- **Real-time attention feedback** — soft nudge → dim → break prompts driven by on-device Vision + Core ML
+- **On-device only** — face landmarks and models run locally; video never leaves the device
+- **Fullscreen dim overlay** — click-through when focus drops (not screen capture)
 - **Parent reports** — optional Claude or OpenAI summaries (bring your own API key)
-- **Train mode** — adaptive steer+tap missions with webcam engagement tracking
+- **Train mode** — NeuroRacer-style adaptive steer+tap missions (EndeavorRx-*inspired*, not equivalent)
+- **Oculomotor screening** — short research-aligned tasks with parent-facing reports (not a diagnosis)
 - **COPPA-minded design** — local SQLite sessions, password-protected parent area
 
 ---
