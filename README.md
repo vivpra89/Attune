@@ -1,9 +1,5 @@
 # Attune
 
-**Description:** Real-time attention feedback for children's learning — ADHD-research-inspired, on-device macOS app with Apple Vision & Core ML.  
-**Website:** [attune.ai](https://attune.ai)  
-**Topics:** `macos` · `tauri` · `coreml` · `education` · `attention` · `react` · `rust` · `swift` · `machine-learning` · `computer-vision`
-
 Attune is a **real-time attention feedback layer** for children's learning. During homework or screen-based lessons, it watches engagement through the webcam (on-device only), then responds when focus drifts — without screen recording or uploading video.
 
 **Repository:** [github.com/vivpra89/Attune](https://github.com/vivpra89/Attune)
