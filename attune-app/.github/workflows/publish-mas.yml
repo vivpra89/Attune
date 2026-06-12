@@ -1,0 +1,100 @@
+# Mac App Store build (manual). Requires Apple certs, profile, and APPLE_TEAM_ID.
+# See docs/MAC_APP_STORE.md. Does not replace publish.yml (direct DMG).
+name: publish-mas
+
+on:
+  workflow_dispatch:
+    inputs:
+      target:
+        description: Rust target
+        required: true
+        default: aarch64-apple-darwin
+        type: choice
+        options:
+          - aarch64-apple-darwin
+          - universal-apple-darwin
+
+jobs:
+  build-mas:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+
+      - name: Install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ inputs.target == 'universal-apple-darwin' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
+
+      - name: Install frontend deps
+        working-directory: attune-app
+        run: npm ci
+
+      - name: Install provisioning profile
+        env:
+          MAS_PROVISION_PROFILE_BASE64: ${{ secrets.MAS_PROVISION_PROFILE_BASE64 }}
+        working-directory: attune-app
+        run: |
+          if [ -z "$MAS_PROVISION_PROFILE_BASE64" ]; then
+            echo "Set secret MAS_PROVISION_PROFILE_BASE64 (base64 of MacAppStore.provisionprofile)" >&2
+            exit 1
+          fi
+          mkdir -p src-tauri/profiles
+          echo "$MAS_PROVISION_PROFILE_BASE64" | base64 --decode > src-tauri/profiles/MacAppStore.provisionprofile
+
+      - name: Generate MAS entitlements
+        working-directory: attune-app
+        env:
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        run: bash scripts/prepare-mas-entitlements.sh
+
+      - name: Create environment file
+        working-directory: attune-app
+        run: |
+          echo "API_ACCESS_KEY=${{ secrets.API_ACCESS_KEY }}" > src-tauri/.env
+          echo "PAYMENT_ENDPOINT=${{ secrets.PAYMENT_ENDPOINT }}" >> src-tauri/.env
+          echo "APP_ENDPOINT=${{ secrets.APP_ENDPOINT }}" >> src-tauri/.env
+          echo "POSTHOG_API_KEY=${{ secrets.POSTHOG_API_KEY }}" >> src-tauri/.env
+
+      - name: Import code signing certificate
+        env:
+          APPLE_CERTIFICATE_BASE64: ${{ secrets.APPLE_CERTIFICATE_BASE64 }}
+          APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+        run: |
+          if [ -z "$APPLE_CERTIFICATE_BASE64" ]; then
+            echo "Skipping cert import (set APPLE_CERTIFICATE_BASE64 for signed builds)" >&2
+            exit 0
+          fi
+          CERT_PATH="$RUNNER_TEMP/certificate.p12"
+          echo "$APPLE_CERTIFICATE_BASE64" | base64 --decode > "$CERT_PATH"
+          security create-keychain -p actions build.keychain
+          security default-keychain -s build.keychain
+          security unlock-keychain -p actions build.keychain
+          security import "$CERT_PATH" -k build.keychain -P "$APPLE_CERTIFICATE_PASSWORD" -T /usr/bin/codesign -T /usr/bin/security
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k actions build.keychain
+
+      - name: Build Mac App Store bundle
+        working-directory: attune-app
+        env:
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
+        run: |
+          npm run tauri build -- \
+            --config src-tauri/tauri.mas.conf.json \
+            --bundles app \
+            --target ${{ inputs.target }} \
+            -- \
+            --no-default-features \
+            --features app-store
+
+      - name: Upload app bundle artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: attune-mas-${{ inputs.target }}
+          path: |
+            attune-app/src-tauri/target/${{ inputs.target }}/release/bundle/macos/*.app
+          if-no-files-found: error

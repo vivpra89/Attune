@@ -1,0 +1,50 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "useDefineForClassFields": true,
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "skipLibCheck": true,
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "react-jsx",
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  },
+  "include": [
+    "src/main.tsx",
+    "src/vite-env.d.ts",
+    "src/routes/index.tsx",
+    "src/pages/app/index.tsx",
+    "src/pages/parent/**/*.tsx",
+    "src/pages/index.ts",
+    "src/components/AttentionDimOverlay.tsx",
+    "src/components/AttuneSidebar.tsx",
+    "src/components/index.ts",
+    "src/components/ui/button.tsx",
+    "src/components/ui/card.tsx",
+    "src/components/ui/input.tsx",
+    "src/components/ui/label.tsx",
+    "src/components/ui/scroll-area.tsx",
+    "src/components/ui/switch.tsx",
+    "src/components/ui/tabs.tsx",
+    "src/components/ui/slider.tsx",
+    "src/components/ui/index.ts",
+    "src/contexts/attune.context.tsx",
+    "src/contexts/theme.context.tsx",
+    "src/contexts/index.ts",
+    "src/layouts/ParentLayout.tsx",
+    "src/lib/utils.ts",
+    "src/config/storage-keys.ts"
+  ],
+  "references": [{ "path": "./tsconfig.node.json" }]
+}

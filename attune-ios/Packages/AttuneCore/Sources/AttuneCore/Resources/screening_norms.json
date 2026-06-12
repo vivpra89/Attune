@@ -1,0 +1,57 @@
+{
+  "disclaimer": "Approximate research reference ranges for webcam oculomotor screening. Not diagnostic cutoffs.",
+  "bands": [
+    {
+      "min_age": 7,
+      "max_age": 9,
+      "antisaccade_error_rate": { "p25": 0.12, "p50": 0.2, "p75": 0.32 },
+      "prosaccade_latency_ms": { "p25": 200, "p50": 280, "p75": 400 },
+      "fixation_on_target_pct": { "p25": 52, "p50": 68, "p75": 85 },
+      "fixation_duration_ms": { "p25": 160, "p50": 280, "p75": 450 },
+      "gaze_yaw_std": { "p25": 0.06, "p50": 0.1, "p75": 0.16 },
+      "story_on_screen_pct": { "p25": 48, "p50": 65, "p75": 82 },
+      "story_gaze_variability": { "p25": 0.07, "p50": 0.11, "p75": 0.17 },
+      "story_probe_follow_rate": { "p25": 0.55, "p50": 0.72, "p75": 0.88 },
+      "story_vigilance_decay_pct": { "p25": -18, "p50": -6, "p75": 4 }
+    },
+    {
+      "min_age": 10,
+      "max_age": 12,
+      "antisaccade_error_rate": { "p25": 0.1, "p50": 0.16, "p75": 0.28 },
+      "prosaccade_latency_ms": { "p25": 180, "p50": 250, "p75": 360 },
+      "fixation_on_target_pct": { "p25": 55, "p50": 72, "p75": 88 },
+      "fixation_duration_ms": { "p25": 180, "p50": 320, "p75": 480 },
+      "gaze_yaw_std": { "p25": 0.05, "p50": 0.09, "p75": 0.14 },
+      "story_on_screen_pct": { "p25": 52, "p50": 70, "p75": 85 },
+      "story_gaze_variability": { "p25": 0.06, "p50": 0.1, "p75": 0.15 },
+      "story_probe_follow_rate": { "p25": 0.6, "p50": 0.78, "p75": 0.92 },
+      "story_vigilance_decay_pct": { "p25": -15, "p50": -5, "p75": 5 }
+    },
+    {
+      "min_age": 13,
+      "max_age": 15,
+      "antisaccade_error_rate": { "p25": 0.08, "p50": 0.14, "p75": 0.25 },
+      "prosaccade_latency_ms": { "p25": 160, "p50": 220, "p75": 320 },
+      "fixation_on_target_pct": { "p25": 58, "p50": 75, "p75": 90 },
+      "fixation_duration_ms": { "p25": 200, "p50": 350, "p75": 520 },
+      "gaze_yaw_std": { "p25": 0.04, "p50": 0.08, "p75": 0.13 },
+      "story_on_screen_pct": { "p25": 55, "p50": 73, "p75": 88 },
+      "story_gaze_variability": { "p25": 0.05, "p50": 0.09, "p75": 0.14 },
+      "story_probe_follow_rate": { "p25": 0.65, "p50": 0.82, "p75": 0.94 },
+      "story_vigilance_decay_pct": { "p25": -12, "p50": -4, "p75": 6 }
+    },
+    {
+      "min_age": 16,
+      "max_age": 99,
+      "antisaccade_error_rate": { "p25": 0.06, "p50": 0.12, "p75": 0.22 },
+      "prosaccade_latency_ms": { "p25": 150, "p50": 200, "p75": 300 },
+      "fixation_on_target_pct": { "p25": 60, "p50": 78, "p75": 92 },
+      "fixation_duration_ms": { "p25": 220, "p50": 380, "p75": 550 },
+      "gaze_yaw_std": { "p25": 0.04, "p50": 0.07, "p75": 0.12 },
+      "story_on_screen_pct": { "p25": 58, "p50": 76, "p75": 90 },
+      "story_gaze_variability": { "p25": 0.04, "p50": 0.08, "p75": 0.13 },
+      "story_probe_follow_rate": { "p25": 0.68, "p50": 0.85, "p75": 0.95 },
+      "story_vigilance_decay_pct": { "p25": -10, "p50": -3, "p75": 7 }
+    }
+  ]
+}

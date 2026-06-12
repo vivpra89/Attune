@@ -1,0 +1,43 @@
+[package]
+name = "attune"
+version = "0.1.0"
+description = "Real-time attention layer for children's learning"
+authors = ["Attune <hello@attune.ai>"]
+license = "GPL-3.0-only"
+edition = "2021"
+
+[features]
+default = ["macos-panel"]
+# Mac App Store: npm run build:mas (no private API / NSPanel; no login-item autostart)
+app-store = []
+macos-panel = ["tauri/macos-private-api", "dep:tauri-nspanel"]
+
+[lib]
+name = "attune_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [ "tray-icon"] }
+tauri-plugin-opener = "2"
+tauri-plugin-keychain = "2.0"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tokio = { version = "1.0", features = ["full"] }
+uuid = { version = "1.0", features = ["v4"] }
+reqwest = { version = "0.12", features = ["json"] }
+anyhow = "1.0"
+tauri-plugin-sql = { version = "2", features = ["sqlite"] }
+rusqlite = { version = "0.32", features = ["bundled"] }
+sha2 = "0.10"
+hex = "0.4"
+chrono = { version = "0.4", features = ["serde"] }
+tauri-nspanel = { git = "https://github.com/ahkohd/tauri-nspanel", branch = "v2", optional = true }
+
+[target.'cfg(target_os = "macos")'.dependencies]
+tauri-plugin-macos-permissions = "2"
+
+[target.'cfg(any(target_os = "macos", windows, target_os = "linux"))'.dependencies]
+tauri-plugin-autostart = "2.5.0"

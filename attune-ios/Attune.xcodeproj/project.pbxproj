@@ -1,0 +1,318 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {};
+	objectVersion = 60;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		B788B72A90A946BFBFE0F6ED /* AppModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF7F841CC13A416D8F26FFCD /* AppModel.swift */; };
+		7315D91129714B8DB43BC522 /* AttuneApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FE5F4BCB9D346DF9CEB7B21 /* AttuneApp.swift */; };
+		2DD08B38CCFD457CBEC0125C /* FocusSessionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93E6B2EE85524B41A265EDA5 /* FocusSessionView.swift */; };
+		2A5DF36A2BED4592B14F5D4C /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15F21F94D4524667AAFB4304 /* HomeView.swift */; };
+		2647D9ABC6C745A6A9E3C5C2 /* ParentDashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B5098498269414591432CD0 /* ParentDashboardView.swift */; };
+		276F8CFC287145E68771FDE1 /* ParentGateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A952A776CF34EABAE699DF5 /* ParentGateView.swift */; };
+		F76500025EBC4B0E9C6AEA16 /* ParentSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6DCAD6FBD944E1CB198CF29 /* ParentSettingsView.swift */; };
+		EFAF0472EFF747C3B4ED2551 /* ScreeningView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2416BFCB1B934ED8B5FBF939 /* ScreeningView.swift */; };
+		D8A5895923DC481D94F531AC /* ComplianceViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98879BF3008448DC84CCBDF8 /* ComplianceViews.swift */; };
+		51DDC2C0F524406AA7B4DDBC /* TrainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB0D6AAD00CB4B09BBA50DE8 /* TrainView.swift */; };
+		A1ASTB000000000000000001 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A1AST0000000000000000001 /* Assets.xcassets */; };
+		A1BF00000000000000000001 /* AttuneCore in Frameworks */ = {isa = PBXBuildFile; productRef = A1PD00000000000000000001 /* AttuneCore */; };
+		A1BF00000000000000000002 /* AttuneVision in Frameworks */ = {isa = PBXBuildFile; productRef = A1PD00000000000000000002 /* AttuneVision */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		A1PROD000000000000000001 /* AttuneApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AttuneApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		FF7F841CC13A416D8F26FFCD /* AppModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppModel.swift; sourceTree = "<group>"; };
+		5FE5F4BCB9D346DF9CEB7B21 /* AttuneApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AttuneApp.swift; sourceTree = "<group>"; };
+		93E6B2EE85524B41A265EDA5 /* FocusSessionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/Focus/FocusSessionView.swift; sourceTree = "<group>"; };
+		15F21F94D4524667AAFB4304 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/HomeView.swift; sourceTree = "<group>"; };
+		4B5098498269414591432CD0 /* ParentDashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/Parent/ParentDashboardView.swift; sourceTree = "<group>"; };
+		7A952A776CF34EABAE699DF5 /* ParentGateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/Parent/ParentGateView.swift; sourceTree = "<group>"; };
+		C6DCAD6FBD944E1CB198CF29 /* ParentSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/Parent/ParentSettingsView.swift; sourceTree = "<group>"; };
+		2416BFCB1B934ED8B5FBF939 /* ScreeningView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/Screen/ScreeningView.swift; sourceTree = "<group>"; };
+		98879BF3008448DC84CCBDF8 /* ComplianceViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/Shared/ComplianceViews.swift; sourceTree = "<group>"; };
+		DB0D6AAD00CB4B09BBA50DE8 /* TrainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/Train/TrainView.swift; sourceTree = "<group>"; };
+		A1AST0000000000000000001 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		A1INF0000000000000000001 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		A1FRMW000000000000000001 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A1BF00000000000000000001 /* AttuneCore in Frameworks */,
+				A1BF00000000000000000002 /* AttuneVision in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		A1APPG000000000000000001 /* AttuneApp */ = {
+			isa = PBXGroup;
+			children = (
+				FF7F841CC13A416D8F26FFCD /* AppModel.swift */,
+				5FE5F4BCB9D346DF9CEB7B21 /* AttuneApp.swift */,
+				93E6B2EE85524B41A265EDA5 /* FocusSessionView.swift */,
+				15F21F94D4524667AAFB4304 /* HomeView.swift */,
+				4B5098498269414591432CD0 /* ParentDashboardView.swift */,
+				7A952A776CF34EABAE699DF5 /* ParentGateView.swift */,
+				C6DCAD6FBD944E1CB198CF29 /* ParentSettingsView.swift */,
+				2416BFCB1B934ED8B5FBF939 /* ScreeningView.swift */,
+				98879BF3008448DC84CCBDF8 /* ComplianceViews.swift */,
+				DB0D6AAD00CB4B09BBA50DE8 /* TrainView.swift */,
+				A1INF0000000000000000001 /* Info.plist */,
+				A1AST0000000000000000001 /* Assets.xcassets */,
+			);
+			path = AttuneApp;
+			sourceTree = "<group>";
+		};
+		A1PKG0000000000000000001 /* AttuneCore */ = {
+			isa = PBXGroup;
+			children = ();
+			name = AttuneCore;
+			path = Packages/AttuneCore;
+			sourceTree = "<group>";
+		};
+		A1PKG0000000000000000002 /* AttuneVision */ = {
+			isa = PBXGroup;
+			children = ();
+			name = AttuneVision;
+			path = Packages/AttuneVision;
+			sourceTree = "<group>";
+		};
+		PRODGROUP001 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				A1PROD000000000000000001 /* AttuneApp.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		ROOTGROUP001 = {
+			isa = PBXGroup;
+			children = (
+				A1APPG000000000000000001 /* AttuneApp */,
+				A1PKG0000000000000000001 /* AttuneCore */,
+				A1PKG0000000000000000002 /* AttuneVision */,
+				PRODGROUP001 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		A1TARG000000000000000001 /* AttuneApp */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A1TCL0000000000000000001 /* Build configuration list for PBXNativeTarget "AttuneApp" */;
+			buildPhases = (
+				A1SRCS000000000000000001 /* Sources */,
+				A1FRMW000000000000000001 /* Frameworks */,
+				A1RESS000000000000000001 /* Resources */,
+			);
+			buildRules = ();
+			dependencies = ();
+			name = AttuneApp;
+			packageProductDependencies = (
+				A1PD00000000000000000001 /* AttuneCore */,
+				A1PD00000000000000000002 /* AttuneVision */,
+			);
+			productName = AttuneApp;
+			productReference = A1PROD000000000000000001 /* AttuneApp.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		A1PROJ000000000000000001 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1600;
+				LastUpgradeCheck = 1600;
+				TargetAttributes = {
+					A1TARG000000000000000001 = {
+						CreatedOnToolsVersion = 16.0;
+					};
+				};
+			};
+			buildConfigurationList = A1PCL0000000000000000001 /* Build configuration list for PBXProject "Attune" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (en, Base);
+			mainGroup = ROOTGROUP001;
+			packageReferences = (
+				A1PKG0000000000000000001REF /* XCLocalSwiftPackageReference "AttuneCore" */,
+				A1PKG0000000000000000002REF /* XCLocalSwiftPackageReference "AttuneVision" */,
+			);
+			productRefGroup = PRODGROUP001 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				A1TARG000000000000000001 /* AttuneApp */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		A1RESS000000000000000001 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A1ASTB000000000000000001 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		A1SRCS000000000000000001 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B788B72A90A946BFBFE0F6ED /* AppModel.swift in Sources */,
+				7315D91129714B8DB43BC522 /* AttuneApp.swift in Sources */,
+				2DD08B38CCFD457CBEC0125C /* FocusSessionView.swift in Sources */,
+				2A5DF36A2BED4592B14F5D4C /* HomeView.swift in Sources */,
+				2647D9ABC6C745A6A9E3C5C2 /* ParentDashboardView.swift in Sources */,
+				276F8CFC287145E68771FDE1 /* ParentGateView.swift in Sources */,
+				F76500025EBC4B0E9C6AEA16 /* ParentSettingsView.swift in Sources */,
+				EFAF0472EFF747C3B4ED2551 /* ScreeningView.swift in Sources */,
+				D8A5895923DC481D94F531AC /* ComplianceViews.swift in Sources */,
+				51DDC2C0F524406AA7B4DDBC /* TrainView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		A1DBG0000000000000000001 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_MODULES = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_TESTABILITY = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		A1REL0000000000000000001 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_MODULES = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_NS_ASSERTIONS = NO;
+				GCC_OPTIMIZATION_LEVEL = s;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		A1DBGT000000000000000001 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = AttuneApp/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = ("$(inherited)", "@executable_path/Frameworks");
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = ai.attune.app.ios;
+				PRODUCT_NAME = AttuneApp;
+				SDKROOT = iphoneos;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+			};
+			name = Debug;
+		};
+		A1RELT000000000000000001 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = AttuneApp/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = ("$(inherited)", "@executable_path/Frameworks");
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = ai.attune.app.ios;
+				PRODUCT_NAME = AttuneApp;
+				SDKROOT = iphoneos;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		A1PCL0000000000000000001 /* Build configuration list for PBXProject "Attune" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A1DBG0000000000000000001 /* Debug */,
+				A1REL0000000000000000001 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A1TCL0000000000000000001 /* Build configuration list for PBXNativeTarget "AttuneApp" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A1DBGT000000000000000001 /* Debug */,
+				A1RELT000000000000000001 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		A1PKG0000000000000000001REF /* XCLocalSwiftPackageReference "AttuneCore" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = Packages/AttuneCore;
+		};
+		A1PKG0000000000000000002REF /* XCLocalSwiftPackageReference "AttuneVision" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = Packages/AttuneVision;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		A1PD00000000000000000001 /* AttuneCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = AttuneCore;
+			package = A1PKG0000000000000000001REF /* XCLocalSwiftPackageReference "AttuneCore" */;
+		};
+		A1PD00000000000000000002 /* AttuneVision */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = AttuneVision;
+			package = A1PKG0000000000000000002REF /* XCLocalSwiftPackageReference "AttuneVision" */;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = A1PROJ000000000000000001 /* Project object */;
+}

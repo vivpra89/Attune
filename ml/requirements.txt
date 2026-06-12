@@ -1,0 +1,9 @@
+coremltools>=7.0
+torch>=2.0
+pandas>=2.0
+pyarrow>=14.0
+numpy>=1.24
+scikit-learn>=1.3
+hsemotion>=0.3.0
+timm==0.9.12
+pillow>=10.0

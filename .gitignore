@@ -1,0 +1,38 @@
+# Dependencies & build output
+node_modules/
+dist/
+dist-ssr/
+target/
+*.local
+
+# Python / ML
+ml/.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Swift / Xcode
+.build/
+DerivedData/
+*.xcuserstate
+xcuserdata/
+
+# macOS
+.DS_Store
+
+# Secrets & generated signing
+.env
+.env.*
+*.p8
+src-tauri/Entitlements.mas.plist
+**/profiles/*.provisionprofile
+!**/profiles/.gitkeep
+!**/profiles/README.md
+
+# IDE
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+# Logs
+*.log

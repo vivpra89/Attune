@@ -1,0 +1,24 @@
+Attune — Mac App Store Distribution License
+
+Copyright (c) 2025 Attune. All rights reserved.
+
+This license applies only to binaries distributed through the Apple Mac App
+Store (or Apple TestFlight for macOS). Source code obtained from the public
+repository remains under GPL-3.0 unless otherwise stated.
+
+1. Grant
+   Apple distributes the App Store binary under Apple's Licensed Application
+   End User License Agreement. Attune grants you no rights beyond what Apple
+   and that agreement provide for the store binary.
+
+2. Restrictions
+   You may not reverse engineer, decompile, or redistribute the Mac App Store
+   binary except as permitted by applicable law or Apple's terms.
+
+3. No warranty
+   THE APP STORE BINARY IS PROVIDED "AS IS" WITHOUT WARRANTY OF ANY KIND.
+
+4. Contact
+   hello@attune.ai
+
+For open-source terms, see LICENSE (GPL-3.0) in this repository.
