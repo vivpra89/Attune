@@ -5,7 +5,7 @@ use crate::debug::{load_debug_mode, SessionDebugTick};
 use crate::debug_overlay::{start_debug_overlay, stop_debug_overlay};
 use crate::distraction::DistractionFusionEngine;
 use crate::feedback::{FeedbackEngine, FeedbackProfile};
-use crate::feedback_cues;
+use crate::feedback_cues::{self, CueConfig, FeedbackCueEvent};
 use crate::vision::{get_frontmost_app, latest_sample, start_vision, stop_vision};
 use tauri::Emitter;
 use chrono::{Datelike, Duration, TimeZone, Utc};
@@ -24,6 +24,7 @@ pub struct SessionState {
     pub sensitivity: Mutex<f32>,
     pub feedback_engine: Mutex<Option<FeedbackEngine>>,
     pub distraction_engine: Mutex<Option<DistractionFusionEngine>>,
+    pub cue_config: Mutex<CueConfig>,
     pub debug_enabled: AtomicBool,
 }
 
@@ -35,6 +36,7 @@ impl Default for SessionState {
             sensitivity: Mutex::new(70.0),
             feedback_engine: Mutex::new(None),
             distraction_engine: Mutex::new(None),
+            cue_config: Mutex::new(CueConfig::default()),
             debug_enabled: AtomicBool::new(false),
         }
     }
@@ -66,10 +68,19 @@ pub struct DistractionPoint {
 }
 
 #[derive(Serialize, Deserialize, Clone)]
+pub struct CuePoint {
+    pub ts: i64,
+    pub cue: String,
+    pub volume: f32,
+    pub feedback_state: String,
+}
+
+#[derive(Serialize, Deserialize, Clone)]
 pub struct SessionTimeline {
     pub scores: Vec<AttentionPoint>,
     pub apps: Vec<AppFocusPoint>,
     pub distractions: Vec<DistractionPoint>,
+    pub cues: Vec<CuePoint>,
 }
 
 fn load_focus_apps(app: &AppHandle) -> Vec<String> {
@@ -181,6 +192,29 @@ pub async fn has_parent_pin(app: AppHandle) -> Result<bool, String> {
     })
 }
 
+fn refresh_cue_config(app: &AppHandle) {
+    let config = feedback_cues::load_cue_config(app);
+    let state = app.state::<SessionState>();
+    *state.cue_config.lock().unwrap() = config;
+}
+
+fn log_cue_event(
+    app: &AppHandle,
+    session_id: &str,
+    cue: &FeedbackCueEvent,
+    feedback_state: &str,
+) {
+    let ts = Utc::now().timestamp();
+    let _ = with_db(app, |conn| {
+        conn.execute(
+            "INSERT INTO feedback_cue_events (session_id, ts, cue, volume, feedback_state) VALUES (?1, ?2, ?3, ?4, ?5)",
+            params![session_id, ts, cue.cue, cue.volume, feedback_state],
+        )
+        .map_err(|e| e.to_string())?;
+        Ok(())
+    });
+}
+
 #[tauri::command]
 pub async fn save_setting(app: AppHandle, key: String, value: String) -> Result<(), String> {
     with_db(&app, |conn| {
@@ -190,7 +224,14 @@ pub async fn save_setting(app: AppHandle, key: String, value: String) -> Result<
         )
         .map_err(|e| e.to_string())?;
         Ok(())
-    })
+    })?;
+    if matches!(
+        key.as_str(),
+        "audio_cues" | "cue_volume" | "refocus_chime"
+    ) {
+        refresh_cue_config(&app);
+    }
+    Ok(())
 }
 
 #[tauri::command]
@@ -270,6 +311,7 @@ pub async fn start_session(app: AppHandle) -> Result<String, String> {
     let feedback_profile_name = load_feedback_profile_name(&app);
     let focus_apps = load_focus_apps(&app);
     feedback_cues::reset_cue_scheduler();
+    *state.cue_config.lock().unwrap() = feedback_cues::load_cue_config(&app);
     *state.sensitivity.lock().unwrap() = sensitivity;
     *state.feedback_engine.lock().unwrap() = Some(FeedbackEngine::new(sensitivity, profile));
     *state.distraction_engine.lock().unwrap() =
@@ -340,12 +382,25 @@ pub async fn start_session(app: AppHandle) -> Result<String, String> {
             if let Some(ref update) = update {
                 let _ = set_dim_opacity(app_handle.clone(), update.opacity).await;
                 let _ = app_handle.emit("feedback-update", update);
-                feedback_cues::handle_feedback_cues(
+                let cue_config = {
+                    let state = app_handle.state::<SessionState>();
+                    state.cue_config.lock().unwrap().clone()
+                };
+                if let Some(cue) = feedback_cues::handle_feedback_cues(
                     &app_handle,
                     update,
                     now,
                     &profile_name,
-                );
+                    &cue_config,
+                ) {
+                    log_cue_event(
+                        &app_handle,
+                        &sid,
+                        &cue,
+                        update.state.as_str(),
+                    );
+                    let _ = app_handle.emit("feedback-cue-logged", &cue);
+                }
             }
 
             if update.is_some() {
@@ -648,7 +703,7 @@ pub async fn get_session_timeline(
             )
             .map_err(|e| e.to_string())?;
         let distractions = dist_stmt
-            .query_map(params![session_id], |row| {
+            .query_map(params![session_id.clone()], |row| {
                 Ok(DistractionPoint {
                     ts: row.get(0)?,
                     kind: row.get(1)?,
@@ -661,10 +716,29 @@ pub async fn get_session_timeline(
             .collect::<Result<Vec<_>, _>>()
             .map_err(|e| e.to_string())?;
 
+        let mut cue_stmt = conn
+            .prepare(
+                "SELECT ts, cue, volume, feedback_state FROM feedback_cue_events WHERE session_id = ?1 ORDER BY ts ASC",
+            )
+            .map_err(|e| e.to_string())?;
+        let cues = cue_stmt
+            .query_map(params![session_id], |row| {
+                Ok(CuePoint {
+                    ts: row.get(0)?,
+                    cue: row.get(1)?,
+                    volume: row.get(2)?,
+                    feedback_state: row.get(3)?,
+                })
+            })
+            .map_err(|e| e.to_string())?
+            .collect::<Result<Vec<_>, _>>()
+            .map_err(|e| e.to_string())?;
+
         Ok(SessionTimeline {
             scores,
             apps,
             distractions,
+            cues,
         })
     })
 }

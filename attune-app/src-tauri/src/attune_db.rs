@@ -15,6 +15,7 @@ pub fn init_db(app: &AppHandle) -> Result<(), String> {
     conn.execute_batch(include_str!("db/migrations/attune-sessions.sql"))
         .map_err(|e| format!("Failed to run migrations: {e}"))?;
     run_feedback_migrations(&conn)?;
+    run_cue_migrations(&conn)?;
     run_screening_migrations(&conn)?;
     run_training_migrations(&conn)?;
     app.manage(AttuneDb(Mutex::new(conn)));
@@ -36,6 +37,12 @@ fn run_feedback_migrations(conn: &Connection) -> Result<(), String> {
         "INSERT OR IGNORE INTO attune_settings (key, value) VALUES ('feedback_profile', 'gentle')",
         [],
     );
+    Ok(())
+}
+
+fn run_cue_migrations(conn: &Connection) -> Result<(), String> {
+    conn.execute_batch(include_str!("db/migrations/attune-v7-feedback-cues.sql"))
+        .map_err(|e| format!("Failed to run cue migrations: {e}"))?;
     Ok(())
 }
 
