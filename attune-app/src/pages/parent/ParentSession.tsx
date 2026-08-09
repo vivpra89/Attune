@@ -32,10 +32,18 @@ interface DistractionPoint {
   app_bundle_id?: string | null;
 }
 
+interface CuePoint {
+  ts: number;
+  cue: string;
+  volume: number;
+  feedback_state: string;
+}
+
 interface SessionTimeline {
   scores: AttentionPoint[];
   apps: AppFocusPoint[];
   distractions: DistractionPoint[];
+  cues: CuePoint[];
 }
 
 interface SessionRow {
@@ -67,6 +75,7 @@ export function ParentSession() {
   const [scores, setScores] = useState<AttentionPoint[]>([]);
   const [apps, setApps] = useState<AppFocusPoint[]>([]);
   const [distractions, setDistractions] = useState<DistractionPoint[]>([]);
+  const [cues, setCues] = useState<CuePoint[]>([]);
   const [summary, setSummary] = useState<string | null>(null);
 
   useEffect(() => {
@@ -75,6 +84,7 @@ export function ParentSession() {
       setScores(timeline.scores);
       setApps(timeline.apps);
       setDistractions(timeline.distractions);
+      setCues(timeline.cues ?? []);
     });
     invoke<SessionRow[]>("list_sessions", { limit: 100 }).then((sessions) => {
       const match = sessions.find((x) => x.id === sessionId);
@@ -186,6 +196,32 @@ export function ParentSession() {
                     👎
                   </button>
                 </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {cues.length > 0 && (
+        <div>
+          <h2 className="text-lg font-medium mb-3">Sound cues</h2>
+          <p className="text-sm text-muted-foreground mb-3">
+            {cues.length} audio cue{cues.length === 1 ? "" : "s"} during this session.
+          </p>
+          <div className="space-y-2">
+            {cues.slice(0, 20).map((c, i) => (
+              <div
+                key={`${c.ts}-${c.cue}-${i}`}
+                className="flex justify-between text-sm rounded-lg border border-border px-4 py-2"
+              >
+                <span className="capitalize">{c.cue.replace("_", " ")}</span>
+                <span className="text-muted-foreground text-xs">
+                  {c.feedback_state.replace(/_/g, " ")} · vol {Math.round(c.volume * 100)}% ·{" "}
+                  {new Date(c.ts * 1000).toLocaleTimeString([], {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
+                </span>
               </div>
             ))}
           </div>

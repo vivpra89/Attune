@@ -1,8 +1,6 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { listen } from "@tauri-apps/api/event";
 import type { FeedbackUpdate } from "@/contexts/attune.context";
-
-const CUE_DEBOUNCE_MS = 2000;
 
 type FeedbackCuePayload =
   | string
@@ -11,12 +9,10 @@ type FeedbackCuePayload =
       volume: number;
     };
 
-function playCue(
-  payload: FeedbackCuePayload,
-  lastPlayed: React.MutableRefObject<number>
-) {
-  const cue =
-    typeof payload === "string" ? payload : payload.cue;
+const CUE_FILES = ["nudge", "dim", "reengage"] as const;
+
+function resolveCue(payload: FeedbackCuePayload): { file: string; volume: number; rate: number } | null {
+  const cue = typeof payload === "string" ? payload : payload.cue;
   const volume =
     typeof payload === "string"
       ? cue === "nudge"
@@ -24,15 +20,38 @@ function playCue(
         : 0.45
       : payload.volume;
 
-  if (cue !== "nudge" && cue !== "dim") return;
+  if (cue === "break") {
+    return { file: "dim", volume, rate: 0.75 };
+  }
+  if (cue === "nudge" || cue === "dim" || cue === "reengage") {
+    return { file: cue, volume, rate: 1 };
+  }
+  return null;
+}
 
-  const now = Date.now();
-  if (now - lastPlayed.current < CUE_DEBOUNCE_MS) return;
-  lastPlayed.current = now;
+function usePreloadedCues() {
+  const refs = useRef<Record<string, HTMLAudioElement>>({});
 
-  const audio = new Audio(`/sounds/${cue}.wav`);
-  audio.volume = volume;
-  audio.play().catch(() => {});
+  useEffect(() => {
+    for (const name of CUE_FILES) {
+      const audio = new Audio(`/sounds/${name}.wav`);
+      audio.preload = "auto";
+      refs.current[name] = audio;
+    }
+  }, []);
+
+  return useCallback((payload: FeedbackCuePayload) => {
+    const resolved = resolveCue(payload);
+    if (!resolved) return;
+
+    const template = refs.current[resolved.file];
+    if (!template) return;
+
+    const audio = new Audio(template.src);
+    audio.volume = resolved.volume;
+    audio.playbackRate = resolved.rate;
+    audio.play().catch(() => {});
+  }, []);
 }
 
 export function AttentionDimOverlay() {
@@ -43,9 +62,8 @@ export function AttentionDimOverlay() {
   const [showConfusion, setShowConfusion] = useState(false);
   const [feedbackState, setFeedbackState] = useState<string>("focused");
   const [primaryDistraction, setPrimaryDistraction] = useState<string | null>(null);
-  const lastCueRef = useRef(0);
   const prevOpacityRef = useRef(0);
-  const prevFeedbackStateRef = useRef<string>("focused");
+  const playCue = usePreloadedCues();
 
   useEffect(() => {
     const unlistenOpacity = listen<number>("dim-opacity-changed", (event) => {
@@ -62,18 +80,16 @@ export function AttentionDimOverlay() {
         setShowReengage(true);
         window.setTimeout(() => setShowReengage(false), 1200);
       }
-      prevFeedbackStateRef.current = p.state;
     });
     const unlistenCue = listen<FeedbackCuePayload>("play-feedback-cue", (event) => {
-      if (prevFeedbackStateRef.current === "focused") return;
-      playCue(event.payload, lastCueRef);
+      playCue(event.payload);
     });
     return () => {
       unlistenOpacity.then((fn) => fn());
       unlistenFeedback.then((fn) => fn());
       unlistenCue.then((fn) => fn());
     };
-  }, []);
+  }, [playCue]);
 
   const isSoftNudge = feedbackState === "soft_nudge" || feedbackState === "confusion_help";
   const isDimmed = feedbackState === "dimmed" || feedbackState === "break_suggest";
@@ -181,3 +197,14 @@ export function AttentionDimOverlay() {
 }
 
 export default AttentionDimOverlay;
+
+/** Play a cue for settings preview (not tied to session scheduler). */
+export function previewFeedbackCue(
+  cue: "nudge" | "dim" | "reengage",
+  volumeMultiplier: number
+) {
+  const base = cue === "nudge" ? 0.3 : cue === "dim" ? 0.4 : 0.28;
+  const audio = new Audio(`/sounds/${cue}.wav`);
+  audio.volume = Math.min(0.55, base * volumeMultiplier);
+  audio.play().catch(() => {});
+}

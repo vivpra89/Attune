@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
+import { previewFeedbackCue } from "@/components/AttentionDimOverlay";
 
 const COMMON_FOCUS_APPS = [
   { label: "Khan Academy", bundle: "org.khanacademy.Khan-Academy" },
@@ -44,6 +45,8 @@ export function ParentSettings() {
   const [improveAttune, setImproveAttune] = useState(false);
   const [debugMode, setDebugMode] = useState(false);
   const [audioCues, setAudioCues] = useState(true);
+  const [cueVolume, setCueVolume] = useState(70);
+  const [refocusChime, setRefocusChime] = useState(false);
   const [inferenceStatus, setInferenceStatus] = useState<InferenceStatus | null>(null);
   const [trainingDailyMinutes, setTrainingDailyMinutes] = useState(25);
   const [saved, setSaved] = useState(false);
@@ -75,6 +78,12 @@ export function ParentSettings() {
     });
     invoke<string | null>("get_setting", { key: "audio_cues" }).then((v) => {
       setAudioCues(v !== "false");
+    });
+    invoke<string | null>("get_setting", { key: "cue_volume" }).then((v) => {
+      if (v) setCueVolume(parseInt(v, 10) || 70);
+    });
+    invoke<string | null>("get_setting", { key: "refocus_chime" }).then((v) => {
+      setRefocusChime(v === "true");
     });
     invoke<string | null>("get_setting", { key: "training_daily_minutes" }).then((v) => {
       if (v) setTrainingDailyMinutes(parseInt(v, 10) || 25);
@@ -144,6 +153,14 @@ export function ParentSettings() {
     await invoke("save_setting", {
       key: "audio_cues",
       value: String(audioCues),
+    });
+    await invoke("save_setting", {
+      key: "cue_volume",
+      value: String(cueVolume),
+    });
+    await invoke("save_setting", {
+      key: "refocus_chime",
+      value: String(refocusChime),
     });
     await invoke("save_setting", {
       key: "training_daily_minutes",
@@ -350,10 +367,65 @@ export function ParentSettings() {
               Attention sound cues
             </label>
             <p className="text-xs text-muted-foreground mt-1 ml-6">
-              Soft chime when focus starts to drift; repeating cues grow more frequent if
-              attention stays away. Follows your Gentle / Standard / Strong profile. No sound on
-              refocus. Requires an active session and Mac volume on.
+              Soft chime when focus starts to drift; repeating cues grow more frequent and
+              slightly louder if attention stays away. Follows your Gentle / Standard / Strong
+              profile. Requires an active session and Mac volume on.
             </p>
+
+            {audioCues && (
+              <div className="mt-3 ml-6 space-y-4">
+                <div>
+                  <Label>Cue volume ({cueVolume}%)</Label>
+                  <Slider
+                    value={[cueVolume]}
+                    min={20}
+                    max={100}
+                    step={5}
+                    onValueChange={([v]) => setCueVolume(v)}
+                    className="mt-2"
+                  />
+                </div>
+
+                <label className="flex items-center gap-2 text-sm">
+                  <input
+                    type="checkbox"
+                    checked={refocusChime}
+                    onChange={(e) => setRefocusChime(e.target.checked)}
+                  />
+                  Refocus chime
+                </label>
+                <p className="text-xs text-muted-foreground -mt-2 ml-6">
+                  Optional soft tone when your child looks back after drifting.
+                </p>
+
+                <div className="flex flex-wrap gap-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => previewFeedbackCue("nudge", cueVolume / 100)}
+                  >
+                    Preview nudge
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => previewFeedbackCue("dim", cueVolume / 100)}
+                  >
+                    Preview dim
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => previewFeedbackCue("reengage", cueVolume / 100)}
+                  >
+                    Preview refocus
+                  </Button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
 

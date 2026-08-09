@@ -26,6 +26,19 @@ pub enum FeedbackState {
     HyperfocusRedirect,
 }
 
+impl FeedbackState {
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            Self::Focused => "focused",
+            Self::SoftNudge => "soft_nudge",
+            Self::Dimmed => "dimmed",
+            Self::BreakSuggest => "break_suggest",
+            Self::ConfusionHelp => "confusion_help",
+            Self::HyperfocusRedirect => "hyperfocus_redirect",
+        }
+    }
+}
+
 #[derive(Debug, Clone, Serialize)]
 pub struct FeedbackUpdate {
     pub state: FeedbackState,

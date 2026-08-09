@@ -171,11 +171,21 @@ export function SessionDebugOverlay() {
   }, [flushTick]);
 
   useEffect(() => {
-    const unlisten = listen<SessionDebugTick>("session-debug-tick", (event) => {
+    const unlistenTick = listen<SessionDebugTick>("session-debug-tick", (event) => {
       pendingTick.current = event.payload;
     });
+    const unlistenCue = listen<{ cue: string; volume: number }>("feedback-cue-logged", (event) => {
+      const { cue, volume } = event.payload;
+      const entry: DebugLogEntry = {
+        id: logId.current++,
+        ts: Math.floor(Date.now() / 1000),
+        message: `Audio cue: ${cue} (vol ${(volume * 100).toFixed(0)}%)`,
+      };
+      setLogs((prev) => [...prev, entry].slice(-MAX_LOG_ENTRIES));
+    });
     return () => {
-      unlisten.then((fn) => fn());
+      unlistenTick.then((fn) => fn());
+      unlistenCue.then((fn) => fn());
     };
   }, []);
 
